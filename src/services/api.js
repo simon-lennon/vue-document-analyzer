@@ -1,4 +1,6 @@
 import axios from 'axios';
+// Uncomment to use the Anthropic SDK directly
+// import Anthropic from '@anthropic-ai/sdk';
 
 export const documentService = {
   /**
@@ -206,8 +208,7 @@ Please provide a thoughtful, comprehensive analysis based on the document conten
       );
       
       // Option 2: Using Anthropic JavaScript SDK (if imported)
-      // This would require importing the Anthropic client:
-      // import { Anthropic } from '@anthropic-ai/sdk';
+      // Uncomment the import at the top of this file to use this method
       // 
       // const anthropic = new Anthropic({
       //   apiKey: apiKey,
