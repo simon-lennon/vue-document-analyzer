@@ -39,9 +39,13 @@
 </template>
 
 <script setup>
-import { defineProps } from 'vue'
-
-const props = defineProps({
+// Using defineProps directly without importing or assigning to a variable
+const { 
+  tables = [], 
+  treatFirstRowAsHeader = true,
+  showTitle = true,
+  showCopyButton = false
+} = defineProps({
   tables: {
     type: Array,
     default: () => []
@@ -58,14 +62,14 @@ const props = defineProps({
     type: Boolean,
     default: false
   }
-})
+});
 
 /**
  * Copy table data to clipboard as tab-separated values
  */
 const copyTable = (table) => {
   // Convert table to tab-separated text
-  const tableText = table.map(row => row.join('\t')).join('\n')
+  const tableText = table.map(row => row.join('\t')).join('\n');
   
   // Copy to clipboard
   navigator.clipboard.writeText(tableText)
