@@ -1,6 +1,6 @@
 import axios from 'axios';
-// Uncomment to use the Anthropic SDK directly
-// import Anthropic from '@anthropic-ai/sdk';
+// Import the Anthropic client for direct usage
+import Anthropic from '@anthropic-ai/sdk';
 
 export const documentService = {
   /**
@@ -186,45 +186,22 @@ ${documentText}
 
 Please provide a thoughtful, comprehensive analysis based on the document content.`;
 
-      // Two options for calling Claude API:
+      // Use the Anthropic JavaScript SDK
+      const anthropic = new Anthropic({
+        apiKey: apiKey,
+        dangerouslyAllowBrowser: true // Required for browser usage
+      });
       
-      // Option 1: Using axios directly
-      const response = await axios.post(
-        'https://api.anthropic.com/v1/messages',
-        {
-          model: 'claude-3-opus-20240229',
-          max_tokens: 1000,
-          messages: [
-            { role: 'user', content: prompt }
-          ]
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey,
-            'anthropic-version': '2023-06-01'
-          }
-        }
-      );
-      
-      // Option 2: Using Anthropic JavaScript SDK (if imported)
-      // Uncomment the import at the top of this file to use this method
-      // 
-      // const anthropic = new Anthropic({
-      //   apiKey: apiKey,
-      //   dangerouslyAllowBrowser: true // Required for browser usage
-      // });
-      // 
-      // const response = await anthropic.messages.create({
-      //   model: 'claude-3-opus-20240229',
-      //   max_tokens: 1000,
-      //   messages: [
-      //     { role: 'user', content: prompt }
-      //   ]
-      // });
+      const response = await anthropic.messages.create({
+        model: 'claude-3-opus-20240229',
+        max_tokens: 1000,
+        messages: [
+          { role: 'user', content: prompt }
+        ]
+      });
       
       return {
-        analysis: response.data.content[0].text
+        analysis: response.content[0].text
       };
       
     } catch (error) {
