@@ -19,99 +19,105 @@ export const documentService = {
       const formData = new FormData();
       formData.append('file', file);
 
-      // Call Azure Document Intelligence API directly
-      const response = await axios.post(
-        `${config.azureEndpoint}/formrecognizer/documentModels/prebuilt-document:analyze?api-version=2023-07-31`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Ocp-Apim-Subscription-Key': config.azureKey
+      try {
+        // Call Azure Document Intelligence API directly
+        const response = await axios.post(
+          `${config.azureEndpoint}/formrecognizer/documentModels/prebuilt-document:analyze?api-version=2023-07-31`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'Ocp-Apim-Subscription-Key': config.azureKey
+            }
           }
-        }
-      );
+        );
 
-      // Get the operation location to poll for results
-      const operationLocation = response.headers['operation-location'];
-      if (!operationLocation) {
-        throw new Error('Operation location not found in response');
-      }
-
-      // Poll for results
-      let result = null;
-      let complete = false;
-      
-      while (!complete) {
-        // Wait 1 second between polling requests
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const statusResponse = await axios.get(operationLocation, {
-          headers: {
-            'Ocp-Apim-Subscription-Key': config.azureKey
-          }
-        });
-        
-        const status = statusResponse.data.status;
-        
-        if (status === 'succeeded') {
-          result = statusResponse.data;
-          complete = true;
-        } else if (status === 'failed') {
-          throw new Error('Document analysis failed');
+        // Get the operation location to poll for results
+        const operationLocation = response.headers['operation-location'];
+        if (!operationLocation) {
+          console.warn('Operation location not found, using mock data');
+          throw new Error('Operation location not found in response');
         }
-      }
 
-      // Extract the document text
-      let documentText = '';
-      const pages = result.analyzeResult?.pages || [];
-      for (const page of pages) {
-        for (const line of page.lines || []) {
-          documentText += line.content + '\n';
-        }
-      }
-
-      // Extract tables
-      const documentTables = [];
-      const tables = result.analyzeResult?.tables || [];
-      for (const table of tables) {
-        const tableData = [];
+        // Poll for results
+        let result = null;
+        let complete = false;
         
-        // Get number of rows and columns
-        const rowCount = Math.max(...table.cells.map(cell => cell.rowIndex)) + 1;
-        const colCount = Math.max(...table.cells.map(cell => cell.columnIndex)) + 1;
-        
-        // Initialize table with empty cells
-        for (let i = 0; i < rowCount; i++) {
-          const row = new Array(colCount).fill('');
-          tableData.push(row);
-        }
-        
-        // Fill in cell values
-        for (const cell of table.cells) {
-          const { rowIndex, columnIndex, content } = cell;
-          tableData[rowIndex][columnIndex] = content;
-        }
-        
-        documentTables.push(tableData);
-      }
-
-      // Extract key-value pairs
-      const documentKeyValuePairs = [];
-      const keyValuePairs = result.analyzeResult?.keyValuePairs || [];
-      for (const kvp of keyValuePairs) {
-        if (kvp.key && kvp.value) {
-          documentKeyValuePairs.push({
-            key: kvp.key.content,
-            value: kvp.value.content
+        while (!complete) {
+          // Wait 1 second between polling requests
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const statusResponse = await axios.get(operationLocation, {
+            headers: {
+              'Ocp-Apim-Subscription-Key': config.azureKey
+            }
           });
+          
+          const status = statusResponse.data.status;
+          
+          if (status === 'succeeded') {
+            result = statusResponse.data;
+            complete = true;
+          } else if (status === 'failed') {
+            throw new Error('Document analysis failed');
+          }
         }
-      }
 
-      return {
-        documentText,
-        documentTables,
-        documentKeyValuePairs
-      };
+        // Extract the document text
+        let documentText = '';
+        const pages = result.analyzeResult?.pages || [];
+        for (const page of pages) {
+          for (const line of page.lines || []) {
+            documentText += line.content + '\n';
+          }
+        }
+
+        // Extract tables
+        const documentTables = [];
+        const tables = result.analyzeResult?.tables || [];
+        for (const table of tables) {
+          const tableData = [];
+          
+          // Get number of rows and columns
+          const rowCount = Math.max(...table.cells.map(cell => cell.rowIndex)) + 1;
+          const colCount = Math.max(...table.cells.map(cell => cell.columnIndex)) + 1;
+          
+          // Initialize table with empty cells
+          for (let i = 0; i < rowCount; i++) {
+            const row = new Array(colCount).fill('');
+            tableData.push(row);
+          }
+          
+          // Fill in cell values
+          for (const cell of table.cells) {
+            const { rowIndex, columnIndex, content } = cell;
+            tableData[rowIndex][columnIndex] = content;
+          }
+          
+          documentTables.push(tableData);
+        }
+
+        // Extract key-value pairs
+        const documentKeyValuePairs = [];
+        const keyValuePairs = result.analyzeResult?.keyValuePairs || [];
+        for (const kvp of keyValuePairs) {
+          if (kvp.key && kvp.value) {
+            documentKeyValuePairs.push({
+              key: kvp.key.content,
+              value: kvp.value.content
+            });
+          }
+        }
+
+        return {
+          documentText,
+          documentTables,
+          documentKeyValuePairs
+        };
+      } catch (apiError) {
+        console.warn('Azure API error, using mock data:', apiError);
+        throw apiError; // Re-throw to use mock data
+      }
       
     } catch (error) {
       console.error('Error processing document:', error);
@@ -186,24 +192,55 @@ ${documentText}
 
 Please provide a thoughtful, comprehensive analysis based on the document content.`;
 
-      // Use the Anthropic JavaScript SDK
-      const anthropic = new Anthropic({
-        apiKey: apiKey,
-        dangerouslyAllowBrowser: true // Required for browser usage
-      });
-      
-      const response = await anthropic.messages.create({
-        model: 'claude-3-opus-20240229',
-        max_tokens: 1000,
-        messages: [
-          { role: 'user', content: prompt }
-        ]
-      });
-      
-      return {
-        analysis: response.content[0].text
-      };
-      
+      try {
+        // Try the Anthropic SDK with the dangerouslyAllowBrowser option
+        const anthropic = new Anthropic({
+          apiKey: apiKey,
+          dangerouslyAllowBrowser: true // Required for browser usage
+        });
+        
+        console.log("Using Anthropic client directly");
+        
+        const response = await anthropic.messages.create({
+          model: 'claude-3-opus-20240229',
+          max_tokens: 1000,
+          messages: [
+            { role: 'user', content: prompt }
+          ]
+        });
+        
+        console.log("Claude response received:", response);
+        
+        return {
+          analysis: response.content[0].text
+        };
+      } catch (sdkError) {
+        console.warn("Anthropic SDK error:", sdkError);
+        console.log("Falling back to direct API call...");
+        
+        // Fall back to direct API call if the SDK fails
+        const response = await axios.post(
+          'https://api.anthropic.com/v1/messages',
+          {
+            model: 'claude-3-opus-20240229',
+            max_tokens: 1000,
+            messages: [
+              { role: 'user', content: prompt }
+            ]
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': apiKey,
+              'anthropic-version': '2023-06-01'
+            }
+          }
+        );
+        
+        return {
+          analysis: response.data.content[0].text
+        };
+      }
     } catch (error) {
       console.error('Error analyzing with Claude:', error);
       
@@ -226,7 +263,7 @@ Recommendations:
 - The payment terms indicate this should be paid within 30 days
 - This expense should be categorized under the Operations budget
 
-Note: This is sample analysis for demo purposes. Direct API calls to Claude may require proper CORS configuration.
+Note: This is sample analysis for demo purposes. Due to CORS restrictions, we're showing mock data instead of actual API responses.
         `
       };
     }
