@@ -105,17 +105,10 @@
             
             <div v-if="documentStore.documentTables.length > 0" class="mt-4">
               <h5>Document Tables</h5>
-              <div class="table-responsive">
-                <table v-for="(table, tableIndex) in documentStore.documentTables" :key="tableIndex" class="table table-sm table-bordered">
-                  <tbody>
-                    <tr v-for="(row, rowIndex) in table" :key="rowIndex">
-                      <td v-for="(cell, cellIndex) in row" :key="cellIndex" :class="{'table-primary': rowIndex === 0}">
-                        {{ cell }}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+              <TableDisplay 
+                :tables="documentStore.documentTables" 
+                :showCopyButton="true"
+              />
             </div>
             
             <div v-if="documentStore.error" class="alert alert-danger mt-4">
@@ -133,6 +126,7 @@
 import { ref, computed } from 'vue'
 import { useDocumentStore } from '../stores/documentStore'
 import { useRouter } from 'vue-router'
+import TableDisplay from '../components/TableDisplay.vue'
 
 const documentStore = useDocumentStore()
 const router = useRouter()
