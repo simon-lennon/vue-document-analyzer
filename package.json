@@ -20,11 +20,11 @@
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.22.15",
     "@vue/cli-plugin-babel": "~5.0.8",
     "@vue/cli-plugin-eslint": "~5.0.8",
     "@vue/cli-plugin-router": "~5.0.8",
     "@vue/cli-service": "~5.0.8",
-    "@vue/eslint-config-standard": "^8.0.1",
     "eslint": "^8.54.0",
     "eslint-plugin-import": "^2.29.0",
     "eslint-plugin-vue": "^9.18.1",
