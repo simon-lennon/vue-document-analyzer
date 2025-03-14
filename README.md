@@ -1,6 +1,6 @@
-# Document Analyzer
+# Document Analyzer (Client-Only Demo)
 
-A Vue 3 application for document analysis using Azure Document Intelligence and Claude AI. This project demonstrates how to extract text and structured information from documents and perform AI-powered analysis.
+A Vue 3 application for document analysis using Azure Document Intelligence and Claude AI. This project demonstrates how to extract text and structured information from documents and perform AI-powered analysis, all directly from the browser without a backend server.
 
 ## Features
 
@@ -10,15 +10,14 @@ A Vue 3 application for document analysis using Azure Document Intelligence and 
 - ✅ Modern Vue 3 application with Composition API
 - ✅ State management with Pinia
 - ✅ Responsive UI with Bootstrap 5
-- ✅ Express.js backend for secure API integration
+- ✅ Client-only approach (no backend needed)
 
 ## Project Setup
 
 ### Prerequisites
 
 - Node.js and npm installed
-- Azure Document Intelligence account
-- Claude API access
+- Access to Azure Document Intelligence API and Claude API (keys will be entered by users)
 
 ### Installation
 
@@ -29,75 +28,29 @@ git clone https://github.com/simon-lennon/vue-document-analyzer.git
 cd vue-document-analyzer
 ```
 
-2. Install frontend dependencies:
+2. Install dependencies:
 
 ```bash
 npm install
-```
-
-3. Install backend dependencies:
-
-```bash
-cd server
-npm install
-cd ..
-```
-
-4. Configure environment variables:
-
-- Create a `.env` file in the root directory for frontend:
-
-```
-VUE_APP_API_URL=http://localhost:3000/api
-```
-
-- Create a `.env` file in the server directory based on the `.env.example`:
-
-```bash
-cd server
-cp .env.example .env
-# Edit .env with your API keys and configuration
 ```
 
 ### Running the Application
 
-1. Start the backend server:
-
-```bash
-cd server
-npm run dev
-```
-
-The server will run on http://localhost:3000.
-
-2. In a new terminal, start the frontend development server:
+Start the development server:
 
 ```bash
 npm run serve
 ```
 
-The frontend will be available at http://localhost:8080.
+The application will be available at http://localhost:8080.
 
-## Building for Production
-
-1. Build the frontend:
+### Building for Production
 
 ```bash
 npm run build
 ```
 
-The built files will be in the `dist` directory.
-
-2. For production, you can serve the static files from your Express server:
-
-```javascript
-// Add to server.js
-app.use(express.static(path.join(__dirname, '../dist')));
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dist/index.html'));
-});
-```
+The built files will be in the `dist` directory and can be deployed to any static hosting service like GitHub Pages, Netlify, or Vercel.
 
 ## Implementation Details
 
@@ -108,30 +61,26 @@ app.get('*', (req, res) => {
 - Bootstrap 5 for UI
 - Vue Router for navigation
 
-### Backend
+### API Integration
 
-- Express.js server
-- Azure Document Intelligence for document processing
-- Anthropic Claude API for analysis
-- Multer for file uploads
+This application takes a client-only approach where:
 
-## API Endpoints
+1. Users enter their own API keys in the application
+2. Keys are stored in the browser's localStorage (client-side only)
+3. API calls are made directly from the browser to the services
+4. No backend server is required
 
-The backend provides the following endpoints:
+For a real-world production application, a backend server would be recommended to securely handle API keys and sensitive document data.
 
-- `POST /api/process-document`: Process a document with Azure Document Intelligence
-  - Requires `x-azure-endpoint` and `x-azure-key` headers
-  - File should be uploaded as `document` in form data
+### CORS Considerations
 
-- `POST /api/analyze-with-claude`: Analyze document content with Claude API
-  - Requires `x-claude-api-key` header
-  - Body should include `question`, `documentText`, and optionally `documentTables` and `documentKeyValuePairs`
+For demo purposes, if you encounter CORS issues with direct API calls, the application will fall back to using mock data. In a production environment, you would need to ensure your API providers allow cross-origin requests from your domain.
 
-## Security Considerations
+## Security Notes
 
-- API keys are passed via headers and not exposed in frontend code
-- Files are processed on the server and then deleted
-- In a production environment, add proper authentication and rate limiting
+- API keys are stored in the user's browser localStorage
+- Keys are only used on the client's device and not transmitted elsewhere
+- For demonstration purposes only; a server-side approach is recommended for production applications
 
 ## License
 
