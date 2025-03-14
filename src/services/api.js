@@ -184,7 +184,9 @@ ${documentText}
 
 Please provide a thoughtful, comprehensive analysis based on the document content.`;
 
-      // Call Claude API directly
+      // Two options for calling Claude API:
+      
+      // Option 1: Using axios directly
       const response = await axios.post(
         'https://api.anthropic.com/v1/messages',
         {
@@ -202,6 +204,23 @@ Please provide a thoughtful, comprehensive analysis based on the document conten
           }
         }
       );
+      
+      // Option 2: Using Anthropic JavaScript SDK (if imported)
+      // This would require importing the Anthropic client:
+      // import { Anthropic } from '@anthropic-ai/sdk';
+      // 
+      // const anthropic = new Anthropic({
+      //   apiKey: apiKey,
+      //   dangerouslyAllowBrowser: true // Required for browser usage
+      // });
+      // 
+      // const response = await anthropic.messages.create({
+      //   model: 'claude-3-opus-20240229',
+      //   max_tokens: 1000,
+      //   messages: [
+      //     { role: 'user', content: prompt }
+      //   ]
+      // });
       
       return {
         analysis: response.data.content[0].text
