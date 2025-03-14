@@ -192,54 +192,35 @@ ${documentText}
 
 Please provide a thoughtful, comprehensive analysis based on the document content.`;
 
+      console.log("Creating Anthropic client with dangerouslyAllowBrowser option");
+      
+      // Use the Anthropic JavaScript SDK
+      const anthropic = new Anthropic({
+        apiKey,
+        dangerouslyAllowBrowser: true
+      });
+      
+      console.log("Sending message to Claude API via the SDK");
+      
       try {
-        // Try the Anthropic SDK with the dangerouslyAllowBrowser option
-        const anthropic = new Anthropic({
-          apiKey: apiKey,
-          dangerouslyAllowBrowser: true // Required for browser usage
-        });
-        
-        console.log("Using Anthropic client directly");
-        
         const response = await anthropic.messages.create({
-          model: 'claude-3-opus-20240229',
+          model: "claude-3-sonnet-20240229",
           max_tokens: 1000,
+          temperature: 0.7,
           messages: [
-            { role: 'user', content: prompt }
+            { role: "user", content: prompt }
           ]
         });
         
-        console.log("Claude response received:", response);
+        console.log("Response from Claude:", response);
         
         return {
           analysis: response.content[0].text
         };
-      } catch (sdkError) {
-        console.warn("Anthropic SDK error:", sdkError);
-        console.log("Falling back to direct API call...");
-        
-        // Fall back to direct API call if the SDK fails
-        const response = await axios.post(
-          'https://api.anthropic.com/v1/messages',
-          {
-            model: 'claude-3-opus-20240229',
-            max_tokens: 1000,
-            messages: [
-              { role: 'user', content: prompt }
-            ]
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'x-api-key': apiKey,
-              'anthropic-version': '2023-06-01'
-            }
-          }
-        );
-        
-        return {
-          analysis: response.data.content[0].text
-        };
+      } catch (claudeError) {
+        console.error("Claude API error details:", claudeError);
+        // Fall back to mock data
+        throw claudeError;
       }
     } catch (error) {
       console.error('Error analyzing with Claude:', error);
@@ -263,7 +244,7 @@ Recommendations:
 - The payment terms indicate this should be paid within 30 days
 - This expense should be categorized under the Operations budget
 
-Note: This is sample analysis for demo purposes. Due to CORS restrictions, we're showing mock data instead of actual API responses.
+Note: This is sample analysis for demo purposes. Direct API calls to Claude may require proper CORS configuration.
         `
       };
     }
