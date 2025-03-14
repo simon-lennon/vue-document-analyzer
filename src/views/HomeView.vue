@@ -50,6 +50,14 @@
             <h4 class="mb-0">API Configuration</h4>
           </div>
           <div class="card-body">
+            <div class="alert alert-info mb-4">
+              <strong>Demo Application Note:</strong> This is a client-only demo application where API keys are stored only in your browser's localStorage and used for direct API calls. For a production application, a server-side approach would be more secure.
+              
+              <hr>
+              
+              <strong>CORS Notice:</strong> Direct API calls may encounter CORS restrictions. If API calls fail, the application will display sample mock data for demonstration purposes.
+            </div>
+            
             <form @submit.prevent="saveConfig">
               <div class="mb-3">
                 <label for="azureEndpoint" class="form-label">Azure Document Intelligence Endpoint</label>
