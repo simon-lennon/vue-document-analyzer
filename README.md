@@ -10,6 +10,7 @@ A Vue 3 application for document analysis using Azure Document Intelligence and 
 - ✅ Modern Vue 3 application with Composition API
 - ✅ State management with Pinia
 - ✅ Responsive UI with Bootstrap 5
+- ✅ Express.js backend for secure API integration
 
 ## Project Setup
 
@@ -28,37 +29,75 @@ git clone https://github.com/simon-lennon/vue-document-analyzer.git
 cd vue-document-analyzer
 ```
 
-2. Install dependencies:
+2. Install frontend dependencies:
 
 ```bash
 npm install
 ```
 
-3. Create a `.env` file in the root directory with your API configuration (optional for development):
+3. Install backend dependencies:
+
+```bash
+cd server
+npm install
+cd ..
+```
+
+4. Configure environment variables:
+
+- Create a `.env` file in the root directory for frontend:
 
 ```
-VUE_APP_AZURE_ENDPOINT=your-azure-endpoint
-VUE_APP_AZURE_KEY=your-azure-key
-VUE_APP_CLAUDE_API_KEY=your-claude-api-key
+VUE_APP_API_URL=http://localhost:3000/api
 ```
 
-### Development
+- Create a `.env` file in the server directory based on the `.env.example`:
 
-Run the development server:
+```bash
+cd server
+cp .env.example .env
+# Edit .env with your API keys and configuration
+```
+
+### Running the Application
+
+1. Start the backend server:
+
+```bash
+cd server
+npm run dev
+```
+
+The server will run on http://localhost:3000.
+
+2. In a new terminal, start the frontend development server:
 
 ```bash
 npm run serve
 ```
 
-The application will be available at http://localhost:8080.
+The frontend will be available at http://localhost:8080.
 
-### Building for Production
+## Building for Production
+
+1. Build the frontend:
 
 ```bash
 npm run build
 ```
 
 The built files will be in the `dist` directory.
+
+2. For production, you can serve the static files from your Express server:
+
+```javascript
+// Add to server.js
+app.use(express.static(path.join(__dirname, '../dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
+```
 
 ## Implementation Details
 
@@ -69,27 +108,30 @@ The built files will be in the `dist` directory.
 - Bootstrap 5 for UI
 - Vue Router for navigation
 
-### Backend Integration
+### Backend
 
-This frontend application is designed to work with a backend service that handles:
+- Express.js server
+- Azure Document Intelligence for document processing
+- Anthropic Claude API for analysis
+- Multer for file uploads
 
-1. Document processing with Azure Document Intelligence
-2. Analysis with Claude API
+## API Endpoints
 
-**Note**: The current implementation uses simulated API responses for demonstration purposes. In a production environment, you would need to implement a proper backend service.
-
-## Backend Implementation (To Be Developed)
-
-The backend service should provide the following endpoints:
+The backend provides the following endpoints:
 
 - `POST /api/process-document`: Process a document with Azure Document Intelligence
+  - Requires `x-azure-endpoint` and `x-azure-key` headers
+  - File should be uploaded as `document` in form data
+
 - `POST /api/analyze-with-claude`: Analyze document content with Claude API
+  - Requires `x-claude-api-key` header
+  - Body should include `question`, `documentText`, and optionally `documentTables` and `documentKeyValuePairs`
 
 ## Security Considerations
 
-- API keys should never be exposed in the frontend code in a production environment
-- All API requests should be proxied through a secure backend
-- Use environment variables and proper authentication for API access
+- API keys are passed via headers and not exposed in frontend code
+- Files are processed on the server and then deleted
+- In a production environment, add proper authentication and rate limiting
 
 ## License
 
