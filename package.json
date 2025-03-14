@@ -9,8 +9,8 @@
   },
   "dependencies": {
     "@azure/ai-form-recognizer": "^4.0.0",
+    "@anthropic-ai/sdk": "^0.18.0",
     "@popperjs/core": "^2.11.8",
-    "anthropic": "^0.19.2",
     "axios": "^1.6.2",
     "bootstrap": "^5.3.2",
     "bootstrap-icons": "^1.11.2",
