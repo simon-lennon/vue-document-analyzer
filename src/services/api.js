@@ -196,7 +196,7 @@ Please provide a thoughtful, comprehensive analysis based on the document conten
       
       // Use the Anthropic JavaScript SDK
       const anthropic = new Anthropic({
-        apiKey,
+        apiKey: apiKey,
         dangerouslyAllowBrowser: true
       });
       
@@ -204,9 +204,8 @@ Please provide a thoughtful, comprehensive analysis based on the document conten
       
       try {
         const response = await anthropic.messages.create({
-          model: "claude-3-sonnet-20240229",
-          max_tokens: 1000,
-          temperature: 0.7,
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 8000,
           messages: [
             { role: "user", content: prompt }
           ]
@@ -228,23 +227,9 @@ Please provide a thoughtful, comprehensive analysis based on the document conten
       // For demo purposes, return mock data if API fails
       return {
         analysis: `
-Based on the document analysis:
 
-This appears to be an invoice dated March 14, 2025, with invoice number INV-2025-001 for a total of $1,250.00.
 
-The document contains a table with 3 line items. Each item includes a description, quantity, and price.
-
-Key insights:
-- The invoice is from the current quarter
-- The total amount falls within the standard procurement range
-- All line items appear to be properly categorized
-
-Recommendations:
-- This invoice should be processed according to standard procedures
-- The payment terms indicate this should be paid within 30 days
-- This expense should be categorized under the Operations budget
-
-Note: This is sample analysis for demo purposes. Direct API calls to Claude may require proper CORS configuration.
+ Direct API calls to Claude may require proper CORS configuration.
         `
       };
     }
