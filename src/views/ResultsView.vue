@@ -53,6 +53,56 @@
               No key-value pairs extracted from this document.
             </div>
             
+            <!-- <div class="mt-4">
+              <h5>Ask Another Question</h5>
+              <div class="input-group mb-3">
+                <input 
+                  type="text" 
+                  v-model="newQuestion" 
+                  class="form-control" 
+                  placeholder="Ask about this document..."
+                  :disabled="documentStore.isLoading || !documentStore.isConfigured"
+                >
+                <button 
+                  @click="askNewQuestion" 
+                  class="btn btn-primary" 
+                  :disabled="documentStore.isLoading || !newQuestion || !documentStore.isConfigured"
+                >
+                  <span v-if="documentStore.isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                  <i v-else class="bi bi-send me-2"></i>
+                  Ask
+                </button>
+              </div>
+            </div> -->
+          </div>
+        </div>
+      </div>
+      
+      <!-- Analysis Results -->
+      <div class="col-md-8 mb-4">
+        <div class="card shadow h-100">
+          <div class="card-header bg-light">
+            <h4 class="mb-0">Document Analysis</h4>
+          </div>
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5>Results</h5>
+              <button @click="copyToClipboard" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-clipboard me-2"></i>
+                Copy
+              </button>
+            </div>
+            
+            <div class="p-4 border rounded bg-light analysis-content">
+              <div v-if="documentStore.isLoading" class="text-center p-5">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Analyzing document...</p>
+              </div>
+              <div v-else class="analysis-text" v-html="formattedAnalysis"></div>
+            </div>
+
             <div class="mt-4">
               <h5>Ask Another Question</h5>
               <div class="input-group mb-3">
@@ -73,34 +123,6 @@
                   Ask
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Analysis Results -->
-      <div class="col-md-8 mb-4">
-        <div class="card shadow h-100">
-          <div class="card-header bg-light">
-            <h4 class="mb-0">Claude's Analysis</h4>
-          </div>
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5>Results</h5>
-              <button @click="copyToClipboard" class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-clipboard me-2"></i>
-                Copy
-              </button>
-            </div>
-            
-            <div class="p-4 border rounded bg-light analysis-content">
-              <div v-if="documentStore.isLoading" class="text-center p-5">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="mt-3">Analyzing document...</p>
-              </div>
-              <div v-else class="analysis-text" v-html="formattedAnalysis"></div>
             </div>
             
             <div v-if="documentStore.documentTables.length > 0" class="mt-4">

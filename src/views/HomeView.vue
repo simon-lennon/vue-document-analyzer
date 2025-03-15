@@ -24,14 +24,14 @@
                 <div class="text-center">
                   <i class="bi bi-file-text text-primary" style="font-size: 2rem;"></i>
                   <h4 class="mt-3">2. Extract</h4>
-                  <p>Extract text, tables, and key information using Azure AI</p>
+                  <p>Extract text, tables, and key information using AI document reader</p>
                 </div>
               </div>
               <div class="col-md-4 mb-4">
                 <div class="text-center">
                   <i class="bi bi-graph-up text-info" style="font-size: 2rem;"></i>
                   <h4 class="mt-3">3. Analyze</h4>
-                  <p>Get AI-powered insights and analysis using Claude</p>
+                  <p>Get AI-powered insights and analysis using AI document analyser</p>
                 </div>
               </div>
             </div>
@@ -45,18 +45,19 @@
           </div>
         </div>
         
-        <div class="card shadow mb-4">
+        <!-- Only show API config when settings are missing from storage -->
+        <div class="card shadow mb-4" v-if="!storedConfigComplete">
           <div class="card-header">
             <h4 class="mb-0">API Configuration</h4>
           </div>
           <div class="card-body">
-            <div class="alert alert-info mb-4">
+            <!-- <div class="alert alert-info mb-4">
               <strong>Demo Application Note:</strong> This is a client-only demo application where API keys are stored only in your browser's localStorage and used for direct API calls. For a production application, a server-side approach would be more secure.
               
               <hr>
               
               <strong>CORS Notice:</strong> Direct API calls may encounter CORS restrictions. If API calls fail, the application will display sample mock data for demonstration purposes.
-            </div>
+            </div> -->
             
             <form @submit.prevent="saveConfig">
               <div class="mb-3">
@@ -107,7 +108,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useDocumentStore } from '../stores/documentStore'
 
 const documentStore = useDocumentStore()
@@ -129,4 +130,11 @@ const saveConfig = () => {
   
   alert('Configuration saved successfully!')
 }
+
+// Computed property to check if all config fields are set in the store
+const storedConfigComplete = computed(() => {
+  return documentStore.azureEndpoint && 
+         documentStore.azureKey && 
+         documentStore.claudeApiKey
+})
 </script>

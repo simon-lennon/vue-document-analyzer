@@ -174,12 +174,19 @@ const handleFileUpload = (event) => {
 // Remove the selected file
 const removeFile = () => {
   documentStore.clearAll()
-  fileInput.value.value = null
+  if (fileInput.value) {
+    fileInput.value.value = null
+  }
 }
 
 // Process the document
 const processDocument = async () => {
   await documentStore.processDocument()
+  // After processing, automatically ask about document type
+  if (documentStore.documentText) {
+    question.value = "What type of document is this?"
+    await analyzeWithClaude()
+  }
 }
 
 // Analyze with Claude
