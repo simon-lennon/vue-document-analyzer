@@ -85,22 +85,132 @@
             <h4 class="mb-0">Document Analysis</h4>
           </div>
           <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5>Results</h5>
-              <button @click="copyToClipboard" class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-clipboard me-2"></i>
-                Copy
-              </button>
-            </div>
-            
-            <div class="p-4 border rounded bg-light analysis-content">
-              <div v-if="documentStore.isLoading" class="text-center p-5">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">Loading...</span>
+            <!-- Tabs -->
+            <ul class="nav nav-tabs mb-3">
+              <li class="nav-item">
+                <a class="nav-link" 
+                   :class="{ active: activeTab === 'analysis' }"
+                   @click.prevent="activeTab = 'analysis'" 
+                   href="#">Analysis Results</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" 
+                   :class="{ active: activeTab === 'extracted' }"
+                   @click.prevent="activeTab = 'extracted'" 
+                   href="#">Extracted Text</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" 
+                   :class="{ active: activeTab === 'history' }"
+                   @click.prevent="activeTab = 'history'" 
+                   href="#">Question History</a>
+              </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+              <!-- Analysis Results Tab -->
+              <div v-show="activeTab === 'analysis'">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h5>Results</h5>
+                  <button @click="copyToClipboard" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-clipboard me-2"></i>
+                    Copy
+                  </button>
                 </div>
-                <p class="mt-3">Analyzing document...</p>
+                
+                <div class="p-4 border rounded bg-light analysis-content">
+                  <div v-if="documentStore.isLoading" class="text-center p-5">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3">Analyzing document...</p>
+                  </div>
+                  <div v-else class="analysis-text" v-html="formattedAnalysis"></div>
+                </div>
               </div>
-              <div v-else class="analysis-text" v-html="formattedAnalysis"></div>
+
+              <!-- Extracted Text Tab -->
+              <div v-show="activeTab === 'extracted'">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h5>Extracted Content</h5>
+                  <button @click="copyExtractedText" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-clipboard me-2"></i>
+                    Copy Text
+                  </button>
+                </div>
+                
+                <!-- Extracted Text Section -->
+                <div class="mb-4">
+                  <h6>Text Content</h6>
+                  <div class="p-4 border rounded bg-light analysis-content">
+                    <div v-if="!documentStore.documentText" class="text-muted">
+                      No text has been extracted from this document yet.
+                    </div>
+                    <div v-else class="extracted-text">{{ documentStore.documentText }}</div>
+                  </div>
+                </div>
+
+                <!-- Extracted Tables Section -->
+                <div v-if="documentStore.documentTables.length > 0" class="mt-4">
+                  <h6>Tables</h6>
+                  <TableDisplay :tables="documentStore.documentTables" />
+                </div>
+
+                <!-- Key-Value Pairs Section -->
+                <div v-if="documentStore.documentKeyValuePairs.length > 0" class="mt-4">
+                  <h6>Key Information</h6>
+                  <table class="table table-sm">
+                    <tbody>
+                      <tr v-for="(pair, index) in documentStore.documentKeyValuePairs" :key="index">
+                        <th>{{ pair.key }}</th>
+                        <td>{{ pair.value }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Question History Tab -->
+              <div v-show="activeTab === 'history'">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h5>Previous Questions & Answers</h5>
+                  <button @click="clearHistory" class="btn btn-sm btn-outline-secondary" 
+                          v-if="documentStore.questionHistory?.length">
+                    <i class="bi bi-trash me-2"></i>
+                    Clear History
+                  </button>
+                </div>
+                
+                <div v-if="!documentStore.questionHistory?.length" class="text-center p-5">
+                  <div class="text-muted">
+                    <i class="bi bi-clock-history fs-4 mb-3 d-block"></i>
+                    No questions have been asked yet.
+                  </div>
+                </div>
+                
+                <div v-else class="question-history">
+                  <div v-for="(item, index) in sortedHistory" 
+                       :key="index" 
+                       class="history-item mb-4 p-3 border rounded">
+                    <div class="question mb-2">
+                      <strong class="text-primary">
+                        <i class="bi bi-question-circle me-2"></i>Question:
+                      </strong>
+                      <p class="ms-4 mb-2">{{ item.question }}</p>
+                    </div>
+                    <div class="answer">
+                      <strong class="text-success">
+                        <i class="bi bi-chat-left-text me-2"></i>Answer:
+                      </strong>
+                      <p class="ms-4 mb-2 analysis-text" v-html="formatAnswer(item.answer)"></p>
+                    </div>
+                    <div class="text-muted small text-end">
+                      {{ formatTimestamp(item.timestamp) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="mt-4">
@@ -125,14 +235,6 @@
               </div>
             </div>
             
-            <div v-if="documentStore.documentTables.length > 0" class="mt-4">
-              <h5>Document Tables</h5>
-              <TableDisplay 
-                :tables="documentStore.documentTables" 
-                :showCopyButton="true"
-              />
-            </div>
-            
             <div v-if="documentStore.error" class="alert alert-danger mt-4">
               <i class="bi bi-exclamation-triangle me-2"></i>
               {{ documentStore.error }}
@@ -153,6 +255,7 @@ import TableDisplay from '../components/TableDisplay.vue'
 const documentStore = useDocumentStore()
 const router = useRouter()
 const newQuestion = ref('')
+const activeTab = ref('analysis')
 
 // Format the analysis text with line breaks
 const formattedAnalysis = computed(() => {
@@ -190,6 +293,44 @@ const copyToClipboard = () => {
       console.error('Failed to copy text: ', err)
     })
 }
+
+// Copy the extracted text to clipboard
+const copyExtractedText = () => {
+  navigator.clipboard.writeText(documentStore.documentText)
+    .then(() => {
+      alert('Extracted text copied to clipboard!')
+    })
+    .catch(err => {
+      console.error('Failed to copy text: ', err)
+    })
+}
+
+// Sort history with newest first
+const sortedHistory = computed(() => {
+  return [...(documentStore.questionHistory || [])].reverse()
+})
+
+// Format the answer text with line breaks
+const formatAnswer = (answer) => {
+  if (!answer || !answer.analysis) return ''
+  return answer.analysis
+    .split('\n')
+    .map(line => line.trim() ? `<p>${line}</p>` : '<br>')
+    .join('')
+}
+
+// Format timestamp to readable date/time
+const formatTimestamp = (timestamp) => {
+  if (!timestamp) return ''
+  return new Date(timestamp).toLocaleString()
+}
+
+// Clear history function
+const clearHistory = () => {
+  if (confirm('Are you sure you want to clear all question history?')) {
+    documentStore.clearQuestionHistory()
+  }
+}
 </script>
 
 <style scoped>
@@ -201,5 +342,31 @@ const copyToClipboard = () => {
 
 .analysis-text p {
   margin-bottom: 0.75rem;
+}
+
+.extracted-text {
+  white-space: pre-wrap;
+  font-family: monospace;
+}
+
+.nav-link {
+  cursor: pointer;
+}
+
+.question-history {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.history-item {
+  background-color: #f8f9fa;
+}
+
+.history-item:hover {
+  background-color: #fff;
+}
+
+.history-item p {
+  margin-bottom: 0.5rem;
 }
 </style>

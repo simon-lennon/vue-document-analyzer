@@ -12,7 +12,8 @@ export const useDocumentStore = defineStore('documentStore', {
     error: null,
     azureEndpoint: '',
     azureKey: '',
-    claudeApiKey: ''
+    claudeApiKey: '',
+    questionHistory: []
   }),
   
   getters: {
@@ -103,7 +104,16 @@ export const useDocumentStore = defineStore('documentStore', {
         // Update state with analysis result
         this.analysisResult = result.analysis
         
+        // Add to history
+        this.questionHistory.push({
+          question,
+          answer: result,
+          timestamp: new Date().toISOString()
+        })
+        
         this.isLoading = false
+        
+        return result
       } catch (error) {
         this.error = error.message || 'Failed to analyze with Claude'
         this.isLoading = false
@@ -117,6 +127,11 @@ export const useDocumentStore = defineStore('documentStore', {
       this.documentKeyValuePairs = []
       this.analysisResult = ''
       this.error = null
+      this.questionHistory = []
+    },
+    
+    clearQuestionHistory() {
+      this.questionHistory = []
     }
   }
 })
