@@ -25,7 +25,12 @@
                 class="d-none" 
                 accept=".pdf,.png,.jpg,.jpeg,.tiff,.docx,.doc"
               >
-              <div class="text-center p-5 border border-2 border-dashed rounded w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+              <div 
+                class="text-center p-5 border border-2 border-dashed rounded w-100 h-100 d-flex flex-column align-items-center justify-content-center"
+                @dragover.prevent
+                @drop.prevent="handleFileDrop"
+                @dragenter.prevent
+              >
                 <i class="bi bi-cloud-arrow-up text-primary" style="font-size: 4rem;"></i>
                 <h5 class="mt-3">Drag &amp; Drop your document here</h5>
                 <p class="text-muted">or</p>
@@ -192,6 +197,14 @@ const formatFileSize = (bytes) => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
+
+// Handle file drop
+const handleFileDrop = (event) => {
+  const file = event.dataTransfer.files[0]
+  if (file) {
+    documentStore.setDocument(file)
+  }
 }
 </script>
 
