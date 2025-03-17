@@ -80,9 +80,12 @@
       
       <!-- Analysis Results -->
       <div class="col-md-8 mb-4">
-        <div class="card shadow h-100">
-          <div class="card-header bg-light">
+        <div class="card shadow h-100" :class="{ 'expanded-panel': isExpanded }">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
             <h4 class="mb-0">Document Analysis</h4>
+            <button @click="toggleExpand" class="btn btn-sm btn-outline-secondary">
+              <i :class="isExpanded ? 'bi bi-fullscreen-exit' : 'bi bi-fullscreen'"></i>
+            </button>
           </div>
           <div class="card-body">
             <!-- Tabs -->
@@ -256,6 +259,7 @@ const documentStore = useDocumentStore()
 const router = useRouter()
 const newQuestion = ref('')
 const activeTab = ref('analysis')
+const isExpanded = ref(false)
 
 // Format the analysis text with line breaks
 const formattedAnalysis = computed(() => {
@@ -331,6 +335,11 @@ const clearHistory = () => {
     documentStore.clearQuestionHistory()
   }
 }
+
+// Toggle expand/shrink panel
+const toggleExpand = () => {
+  isExpanded.value = !isExpanded.value
+}
 </script>
 
 <style scoped>
@@ -368,5 +377,25 @@ const clearHistory = () => {
 
 .history-item p {
   margin-bottom: 0.5rem;
+}
+
+.expanded-panel {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1000;
+  margin: 0;
+  width: auto;
+}
+
+.expanded-panel .card-body {
+  height: calc(100% - 60px);
+  overflow-y: auto;
+}
+
+.expanded-panel .analysis-content {
+  max-height: none;
 }
 </style>

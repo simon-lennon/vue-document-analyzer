@@ -45,10 +45,15 @@
           </div>
         </div>
         
-        <!-- Only show API config when settings are missing from storage -->
-        <div class="card shadow mb-4" v-if="!storedConfigComplete">
-          <div class="card-header">
+        <!-- Only show API config when settings are missing from storage or when manually shown -->
+        <div class="card shadow mb-4" v-if="!storedConfigComplete || documentStore.showConfig">
+          <div class="card-header d-flex justify-content-between align-items-center">
             <h4 class="mb-0">API Configuration</h4>
+            <button v-if="storedConfigComplete" 
+                    @click="documentStore.toggleConfig" 
+                    class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-x-lg"></i>
+            </button>
           </div>
           <div class="card-body">
             <!-- <div class="alert alert-info mb-4">

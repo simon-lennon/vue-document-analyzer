@@ -13,7 +13,8 @@ export const useDocumentStore = defineStore('documentStore', {
     azureEndpoint: '',
     azureKey: '',
     claudeApiKey: '',
-    questionHistory: []
+    questionHistory: [],
+    showConfig: false
   }),
   
   getters: {
@@ -132,6 +133,10 @@ export const useDocumentStore = defineStore('documentStore', {
     
     clearQuestionHistory() {
       this.questionHistory = []
+    },
+    
+    toggleConfig() {
+      this.showConfig = !this.showConfig
     }
   }
 })

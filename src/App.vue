@@ -20,9 +20,16 @@
               <router-link class="nav-link" to="/results">Results</router-link>
             </li>
           </ul>
-          <img src="https://www.hicx.com/wp-content/themes/hicx-2021/images/svg/logo.svg" 
-               alt="HICX Logo" 
-               class="navbar-logo" />
+ 
+          <div class="navbar-nav ms-auto">
+            <a v-if="documentStore.isConfigured" 
+               href="#" 
+               class="nav-link" 
+               @click.prevent="showSettings">
+              <i class="bi bi-gear me-1"></i>
+              Settings
+            </a>
+          </div>
         </div>
       </div>
     </nav>
@@ -42,13 +49,22 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useDocumentStore } from './stores/documentStore'
+import { useRouter } from 'vue-router'
 
 const documentStore = useDocumentStore()
+const router = useRouter()
 
 onMounted(() => {
   // Load API configuration from localStorage on app start
   documentStore.loadApiConfig()
 })
+
+const showSettings = () => {
+  documentStore.toggleConfig()
+  if (router.currentRoute.value.path !== '/') {
+    router.push('/')
+  }
+}
 </script>
 
 <style>
