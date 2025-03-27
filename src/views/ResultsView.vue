@@ -108,6 +108,12 @@
                    @click.prevent="activeTab = 'history'" 
                    href="#">Question History</a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" 
+                   :class="{ active: activeTab === 'file' }"
+                   @click.prevent="activeTab = 'file'" 
+                   href="#">File View</a>
+              </li>
             </ul>
 
             <!-- Tab Content -->
@@ -214,6 +220,14 @@
                   </div>
                 </div>
               </div>
+
+              <!-- File View Tab -->
+              <div v-show="activeTab === 'file'">
+                <div class="file-viewer pa-4">
+                  <FileViewer v-if="documentStore.document" />
+                  <div v-else class="text-center">No file uploaded</div>
+                </div>
+              </div>
             </div>
 
             <div class="mt-4">
@@ -254,6 +268,7 @@ import { ref, computed } from 'vue'
 import { useDocumentStore } from '../stores/documentStore'
 import { useRouter } from 'vue-router'
 import TableDisplay from '../components/TableDisplay.vue'
+import FileViewer from '../components/FileViewer.vue'
 
 const documentStore = useDocumentStore()
 const router = useRouter()
@@ -397,5 +412,18 @@ const toggleExpand = () => {
 
 .expanded-panel .analysis-content {
   max-height: none;
+}
+
+.file-viewer {
+  /* max-height: 500px; */
+  overflow-y: auto;
+}
+
+.file-content {
+  white-space: pre-wrap;
+  font-family: monospace;
+  background-color: #f5f5f5;
+  padding: 1rem;
+  border-radius: 4px;
 }
 </style>

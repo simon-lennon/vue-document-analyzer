@@ -14,7 +14,8 @@ export const useDocumentStore = defineStore('documentStore', {
     azureKey: '',
     claudeApiKey: '',
     questionHistory: [],
-    showConfig: false
+    showConfig: false,
+    fileContent: null,
   }),
   
   getters: {
@@ -51,6 +52,27 @@ export const useDocumentStore = defineStore('documentStore', {
       this.claudeApiKey = localStorage.getItem('claudeApiKey') || ''
     },
     
+    async processFile(file) {
+      try {
+        this.document = file
+        this.documentText = ''
+        this.documentTables = []
+        this.documentKeyValuePairs = []
+        this.analysisResult = ''
+        this.isLoading = true
+        this.error = null
+        
+        // Use the extracted document text for file viewing
+        this.fileContent = this.documentText
+        
+        return true
+      } catch (error) {
+        console.error('Error processing file:', error)
+        this.error = 'Failed to process file'
+        throw error
+      }
+    },
+    
     async processDocument() {
       if (!this.document) {
         this.error = 'No document has been selected'
@@ -71,6 +93,8 @@ export const useDocumentStore = defineStore('documentStore', {
         
         // Update state with processed data
         this.documentText = result.documentText
+        // Set the file content after document processing
+        this.fileContent = result.documentText
         this.documentTables = result.documentTables
         this.documentKeyValuePairs = result.documentKeyValuePairs
         
@@ -129,6 +153,7 @@ export const useDocumentStore = defineStore('documentStore', {
       this.analysisResult = ''
       this.error = null
       this.questionHistory = []
+      this.fileContent = null
     },
     
     clearQuestionHistory() {

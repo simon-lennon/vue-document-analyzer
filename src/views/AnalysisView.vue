@@ -107,7 +107,7 @@
               </div>
               
               <div class="mt-4">
-                <h5>Ask Claude about this document</h5>
+                <h5>Ask AI about this document</h5>
                 <div class="input-group mb-3">
                   <input 
                     type="text" 
@@ -164,10 +164,11 @@ const triggerFileInput = () => {
 }
 
 // Handle the file upload
-const handleFileUpload = (event) => {
+const handleFileUpload = async (event) => {
   const file = event.target.files[0]
   if (file) {
-    documentStore.setDocument(file)
+    await documentStore.processFile(file)
+    await processDocument()
   }
 }
 
@@ -185,7 +186,10 @@ const processDocument = async () => {
   // After processing, automatically ask about document type
   if (documentStore.documentText) {
     question.value = "What type of document is this?"
-    await analyzeWithClaude()
+    await documentStore.analyzeWithClaude(question.value)
+    if (documentStore.hasAnalysisResult) {
+      router.push('/results')
+    }
   }
 }
 
